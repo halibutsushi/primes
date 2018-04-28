@@ -1,5 +1,5 @@
 import multiprocessing as mp
-import pyprimes
+from datetime import datetime
 
 class Worker:
 
@@ -37,9 +37,10 @@ class Worker:
 NUM_WORKERS = 4
 
 if __name__ == "__main__":
+    start = datetime.now()
     results = []
     n = 1000000
-    n = 200
+    n = 300
     out_q = mp.SimpleQueue()
     # manager = mp.Manager()
     # prime_list = manager.list()
@@ -87,4 +88,5 @@ if __name__ == "__main__":
         else:
             results.append((i, False))
 
-    print(results[-100:])
+    print(datetime.now() - start)
+    # print(results[-100:])

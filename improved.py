@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import pyprimes
+from datetime import datetime
 
 class Worker:
 
@@ -21,10 +22,12 @@ class Worker:
         self.proc.join()
 
 if __name__ == "__main__":
+    start = datetime.now()
     out_q = mp.SimpleQueue()
     workers = []
 
     n = 1000000
+    n = 300
     interval = n // 4
     if n % 4 > 0:
         interval += 1
@@ -43,4 +46,5 @@ if __name__ == "__main__":
     for _ in range(4):
         results += out_q.get()
 
-    print(results)
+    print(datetime.now() - start)
+    # print(results)

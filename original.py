@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import pyprimes
+from datetime import datetime
 
 class Worker:
     def _is_prime(self, out_q):
@@ -19,11 +20,13 @@ class Worker:
         self.proc.join()
 
 if __name__ == "__main__":
+    start = datetime.now()
     in_q = mp.SimpleQueue()
     out_q = mp.SimpleQueue()
     workers = [Worker() for _ in range(4)]
 
     n = 1000000
+    n = 300
     for v in range(n):
         in_q.put(v)
 
@@ -34,3 +37,4 @@ if __name__ == "__main__":
         w.stop()
 
     results = [out_q.get() for _ in range(n)]
+    print(datetime.now() - start)
