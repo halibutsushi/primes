@@ -25,7 +25,6 @@ if __name__ == "__main__":
     workers = []
 
     n = 1000000
-    n = 1000
     interval = n // 4
     if n % 4 > 0:
         interval += 1
