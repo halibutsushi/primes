@@ -24,7 +24,7 @@ if __name__ == "__main__":
     out_q = mp.SimpleQueue()
     workers = [Worker(in_q, out_q) for _ in range(4)]
 
-    n = 100
+    n = 1000000
     for v in range(n):
         in_q.put(v)
 
