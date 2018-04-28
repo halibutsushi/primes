@@ -30,4 +30,5 @@ if __name__ == "__main__":
             results.append((i, True))
             prime_list.append(i)
 
-    print(results[:100])
+    print(results[-100:])
+    print(len(prime_list))
