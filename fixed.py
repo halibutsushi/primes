@@ -1,17 +1,19 @@
 import multiprocessing as mp
 import pyprimes
+from datetime import datetime
 
 class Worker:
 
-    def __init__(self, in_qu, out_q):
-        self.in_q = in_q
+    def __init__(self, start_num, stop_num, out_q):
         self.out_q = out_q
-        self.proc = mp.Process(target=self._is_prime)
+        self.proc = mp.Process(target=self._is_prime, args=(start_num, stop_num))
+        self.cache = []
 
-    def _is_prime(self):
-        while not self.in_q.empty():
-            elt = self.in_q.get()
-            self.out_q.put((elt, pyprimes.isprime(elt)))
+    def _is_prime(self, start_num, stop_num):
+        for i in range(start_num, stop_num):
+            self.cache.append((i, pyprimes.isprime(i)))
+
+        self.out_q.put(self.cache)
 
     def start(self):
         self.proc.start()
@@ -20,13 +22,19 @@ class Worker:
         self.proc.join()
 
 if __name__ == "__main__":
-    in_q = mp.SimpleQueue()
+    start = datetime.now()
     out_q = mp.SimpleQueue()
-    workers = [Worker(in_q, out_q) for _ in range(4)]
+    workers = []
 
     n = 1000000
-    for v in range(n):
-        in_q.put(v)
+    n = 300
+    interval = n // 4
+    if n % 4 > 0:
+        interval += 1
+
+    for i in range(0, n, interval):
+        end = min(i + interval, n)
+        workers.append(Worker(i, end, out_q))
 
     for w in workers:
         w.start()
@@ -34,6 +42,9 @@ if __name__ == "__main__":
     for w in workers:
         w.stop()
 
-    results = [out_q.get() for _ in range(n)]
+    results = []
+    for _ in range(4):
+        results += out_q.get()
 
-    print(results)
+    print(datetime.now() - start)
+    print(results[-100:])
