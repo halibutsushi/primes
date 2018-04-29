@@ -1,19 +1,13 @@
 import multiprocessing as mp
-import pyprimes
 from datetime import datetime
 
-class Worker:
 
-    def __init__(self, start_num, stop_num, out_q):
-        self.out_q = out_q
-        self.proc = mp.Process(target=self._is_prime, args=(start_num, stop_num))
-        self.cache = []
+class IdleWorker:
+    def __init__(self):
+        self.proc = mp.Process(target=self._do_nothing)
 
-    def _is_prime(self, start_num, stop_num):
-        for i in range(start_num, stop_num):
-            self.cache.append((i, pyprimes.isprime(i)))
-
-        self.out_q.put(self.cache)
+    def _do_nothing(self,):
+        return None
 
     def start(self):
         self.proc.start()
@@ -21,20 +15,11 @@ class Worker:
     def stop(self):
         self.proc.join()
 
+
 if __name__ == "__main__":
     start = datetime.now()
-    out_q = mp.SimpleQueue()
-    workers = []
-
-    n = 1000000
-    n = 300
-    interval = n // 4
-    if n % 4 > 0:
-        interval += 1
-
-    for i in range(0, n, interval):
-        end = min(i + interval, n)
-        workers.append(Worker(i, end, out_q))
+    start = datetime.now()
+    workers = [IdleWorker() for _ in range(4)]
 
     for w in workers:
         w.start()
@@ -42,9 +27,33 @@ if __name__ == "__main__":
     for w in workers:
         w.stop()
 
+    prime_list = []
     results = []
-    for _ in range(4):
-        results += out_q.get()
+    n = 1000000
+    # n = 100
+
+    for i in range(n):
+        if i == 0 or i == 1:
+            results.append((i, False))
+            continue
+
+        is_decided = False
+        for prime in prime_list:
+            if i % prime == 0:
+                results.append((i, False))
+                is_decided = True
+                break
+
+            if prime * prime > i:
+                results.append((i, True))
+                prime_list.append(i)
+                is_decided = True
+                break
+
+        if not is_decided:
+            results.append((i, True))
+            prime_list.append(i)
 
     print(datetime.now() - start)
-    # print(results)
+    print(results[-100:])
+    print(len(prime_list))
